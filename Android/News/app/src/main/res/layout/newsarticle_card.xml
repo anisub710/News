@@ -10,7 +10,7 @@
     android:layout_width="200dp"
     layout_width="200dp"
     layout_height="200dp"
-    card_view:cardCornerRadius="4dp"
+    layout_margin="5dp"
      >
      <include layout="@layout/newsarticle_list_content"/>
 
