@@ -107,7 +107,9 @@ public class NewsArticleListActivity extends AppCompatActivity{
         }
     }
 
-    public boolean onCreateOptionsMenu(Menu menu){
+    //SEARCH
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
 
@@ -116,9 +118,8 @@ public class NewsArticleListActivity extends AppCompatActivity{
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false);
 
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
-
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -136,6 +137,7 @@ public class NewsArticleListActivity extends AppCompatActivity{
     protected void getSearchData(String query){
         Log.v(TAG, query);
     }
+
 
     protected void fillData(){
         stories = new ArrayList<NewsData>();
