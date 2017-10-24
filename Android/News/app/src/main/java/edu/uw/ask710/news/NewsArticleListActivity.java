@@ -1,11 +1,13 @@
 package edu.uw.ask710.news;
 
 import android.app.Activity;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.util.LruCache;
@@ -14,12 +16,16 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.SearchEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -78,6 +84,7 @@ public class NewsArticleListActivity extends AppCompatActivity{
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
 
+        handleIntent(getIntent());
 
         fillData();
 
@@ -98,6 +105,36 @@ public class NewsArticleListActivity extends AppCompatActivity{
             // activity should be in two-pane mode.
             mTwoPane = true;
         }
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu){
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(false);
+
+        return true;
+    }
+
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+        handleIntent(intent);
+    }
+
+    protected void handleIntent(Intent intent){
+        if(Intent.ACTION_SEARCH.equals(intent.getAction())){
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            getSearchData(query);
+        }
+    }
+
+    protected void getSearchData(String query){
+        Log.v(TAG, query);
     }
 
     protected void fillData(){
@@ -164,28 +201,6 @@ public class NewsArticleListActivity extends AppCompatActivity{
         RequestSingleton.getInstance(this).add(request);
     }
 
-
-    public class NewsData{
-        public String headline = "";
-        public String description = "";
-        public long publishedTime = 0;
-        public String imageUrl = "";
-
-        public NewsData() {
-
-        }
-        public NewsData(String headline, String imageUrl, String description, long publishedTime){
-            this.headline = headline;
-            this.imageUrl = imageUrl;
-            this.description = description;
-            this.publishedTime = publishedTime;
-        }
-
-//        public String toString(){
-//            return this.headline;
-//        }
-
-    }
 
 
     public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
