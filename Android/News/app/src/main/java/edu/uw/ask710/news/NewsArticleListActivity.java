@@ -250,7 +250,7 @@ public class NewsArticleListActivity extends AppCompatActivity {
                         NewsArticleDetailFragment fragment = new NewsArticleDetailFragment();
                         fragment.setArguments(arguments);
                         getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.app_bar, fragment)
+                                .replace(R.id.newsarticle_detail_container, fragment)
                                 .commit();
                 }
             });
