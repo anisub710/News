@@ -125,13 +125,16 @@ public class NewsArticleDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.newsarticle_detail, container, false);
-        if(getContext() instanceof HasCollapsableImage){
-            imageCallback= (HasCollapsableImage) getContext();
-        }
+
         Bundle args = getArguments();
         if(args != null){
             NewsData news = args.getParcelable(NEWS_PARCEL_KEY);
-            imageCallback.setupToolbar(news.imageUrl);
+
+            if(getContext() instanceof HasCollapsableImage){
+                imageCallback= (HasCollapsableImage) getContext();
+                imageCallback.setupToolbar(news.imageUrl);
+            }
+
             TextView headline = (TextView) rootView.findViewById(R.id.headline);
             TextView desc = (TextView) rootView.findViewById(R.id.description);
             TextView source = (TextView)rootView.findViewById(R.id.source_heading);
