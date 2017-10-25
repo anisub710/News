@@ -19,6 +19,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONObject;
@@ -41,6 +42,7 @@ public class NewsArticleDetailFragment extends Fragment {
     public static final String ARG_ITEM_ID = "item_id";
     public static final String TAG = "NewsArticleDetailFragment";
     public static final String NEWS_PARCEL_KEY = "news_parcel";
+    private HasCollapsableImage callback;
     /**
      * The dummy content this fragment is presenting.
      */
@@ -53,10 +55,15 @@ public class NewsArticleDetailFragment extends Fragment {
     public NewsArticleDetailFragment() {
     }
 
+     interface HasCollapsableImage{
+         void setupToolbar();
+    }
+
     public static NewsArticleDetailFragment newInstance(NewsData news){
         Bundle args = new Bundle();
         args.putParcelable(NEWS_PARCEL_KEY, news);
         NewsArticleDetailFragment fragment = new NewsArticleDetailFragment();
+        fragment.setArguments(args);
         return fragment;
     }
 
@@ -65,15 +72,6 @@ public class NewsArticleDetailFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (getArguments().containsKey(ARG_ITEM_ID)) {
-            // Load the dummy content specified by the fragment
-            // arguments. In a real-world scenario, use a Loader
-            // to load content from a content provider.
-            mItem = DummyContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
-
-
-        }
     }
 
 
@@ -83,11 +81,16 @@ public class NewsArticleDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.newsarticle_detail, container, false);
-
-        // Show the dummy content as text in a TextView.
-        if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.newsarticle_detail)).setText(mItem.details);
+        if(getContext() instanceof HasCollapsableImage){
+            callback = (HasCollapsableImage) getContext();
         }
+        Bundle args = getArguments();
+        if(args != null){
+            NewsData news = args.getParcelable(NEWS_PARCEL_KEY);
+            NetworkImageView big_image = (NetworkImageView) rootView.findViewById(R.id.big_image);
+            big_image.setImageUrl(news.imageUrl, RequestSingleton.getInstance(rootView.getContext()).getImageLoader());
+        }
+
 
         return rootView;
     }

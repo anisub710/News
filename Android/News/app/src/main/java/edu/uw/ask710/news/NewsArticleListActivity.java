@@ -5,17 +5,22 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.util.LruCache;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ScrollingView;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.support.design.widget.FloatingActionButton;
@@ -25,6 +30,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.SearchEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,8 +58,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.R.attr.apiKey;
 import static android.R.attr.author;
 import static android.R.attr.fragment;
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
 
 /**
  * An activity representing a list of NewsArticles. This activity
@@ -63,7 +71,7 @@ import static android.R.attr.fragment;
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class NewsArticleListActivity extends AppCompatActivity{
+public class NewsArticleListActivity extends AppCompatActivity {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -75,6 +83,7 @@ public class NewsArticleListActivity extends AppCompatActivity{
     private boolean mTwoPane;
     private FloatingActionButton fab;
     private RecyclerView list;
+    private String searchQuery = "";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -86,7 +95,7 @@ public class NewsArticleListActivity extends AppCompatActivity{
 
         handleIntent(getIntent());
 
-        fillData();
+        fillData("");
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -118,7 +127,13 @@ public class NewsArticleListActivity extends AppCompatActivity{
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false);
 
-        return super.onCreateOptionsMenu(menu);
+        //set search icon color to white.
+        Drawable drawable = menu.findItem(R.id.action_search).getIcon();
+        drawable = DrawableCompat.wrap(drawable);
+        DrawableCompat.setTint(drawable, ContextCompat.getColor(this, R.color.iconColor));
+        menu.findItem(R.id.action_search).setIcon(drawable);
+
+        return true;
     }
 
     @Override
@@ -127,34 +142,32 @@ public class NewsArticleListActivity extends AppCompatActivity{
         handleIntent(intent);
     }
 
-    protected void handleIntent(Intent intent){
-        if(Intent.ACTION_SEARCH.equals(intent.getAction())){
+    protected void handleIntent(Intent intent) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             getSearchData(query);
         }
     }
 
-    protected void getSearchData(String query){
-        Log.v(TAG, query);
+    protected void getSearchData(String query) {
+        searchQuery = query;
+        fillData(searchQuery);
     }
 
-
-    protected void fillData(){
+    protected void fillData(String query) {
         stories = new ArrayList<NewsData>();
-        downloadNewsData();
-        list = (RecyclerView)findViewById(R.id.newsarticle_list);
-        GridLayoutManager manager = new GridLayoutManager(NewsArticleListActivity.this, 2);
+        downloadNewsData(query);
+        list = (RecyclerView) findViewById(R.id.newsarticle_list);
         newsAdapter = new NewsAdapter(stories);
-        list.setLayoutManager(manager);
         list.setAdapter(newsAdapter);
 
     }
 
 
-    public void downloadNewsData(){
+    public void downloadNewsData(String query) {
         String api_key = getString(R.string.NEWS_API_KEY);
-        String urlString = "http://beta.newsapi.org/v2/top-headlines?country=us&language=en&apiKey="
-                + api_key;
+        String urlString = "http://beta.newsapi.org/v2/top-headlines?country=us&language=en&q="
+                + query + "&apiKey=" + api_key;
         Request request = new JsonObjectRequest(Request.Method.GET, urlString, null,
                 new Response.Listener<JSONObject>() {
 
@@ -163,7 +176,7 @@ public class NewsArticleListActivity extends AppCompatActivity{
                         newsAdapter.clear();
                         try {
                             JSONArray articles = response.getJSONArray("articles");
-                            for(int i = 0; i < articles.length(); i++){
+                            for (int i = 0; i < articles.length(); i++) {
                                 JSONObject article = articles.getJSONObject(i);
 
                                 String headline = article.getString("title");
@@ -173,12 +186,12 @@ public class NewsArticleListActivity extends AppCompatActivity{
                                 long publishedTime = 0;
                                 try {
                                     String pubDateString = article.getString("publishedAt");
-                                    if(!pubDateString.equals("null"))
+                                    if (!pubDateString.equals("null"))
                                         publishedTime = formatter.parse(pubDateString).getTime();
                                 } catch (ParseException e) {
                                     Log.e(TAG, "Error parsing date", e); //Android log the error
                                 }
-                                NewsData story = new NewsData(headline, imageUrl,description, publishedTime);
+                                NewsData story = new NewsData(headline, imageUrl, description, publishedTime);
                                 stories.add(story);
 //                                Log.v(TAG, story.description);
                                 newsAdapter.notifyDataSetChanged();
@@ -192,7 +205,7 @@ public class NewsArticleListActivity extends AppCompatActivity{
                             Log.e(TAG, "Error parsing json", e);
                         }
                     }
-                }, new Response.ErrorListener(){
+                }, new Response.ErrorListener() {
 
             @Override
             public void onErrorResponse(VolleyError error) {
@@ -202,7 +215,6 @@ public class NewsArticleListActivity extends AppCompatActivity{
 
         RequestSingleton.getInstance(this).add(request);
     }
-
 
 
     public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
@@ -222,32 +234,26 @@ public class NewsArticleListActivity extends AppCompatActivity{
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            TextView headline = (TextView)holder.mView.findViewById(R.id.id);
+            holder.newsItem = mValues.get(position);
+            TextView headline = (TextView) holder.mView.findViewById(R.id.id);
             NetworkImageView image = (NetworkImageView) holder.mView.findViewById(R.id.image);
             headline.setText(mValues.get(position).headline);
             image.setImageUrl(mValues.get(position).imageUrl, RequestSingleton.getInstance(NewsArticleListActivity.this).getImageLoader());
+            image.setErrorImageResId(R.drawable.broken_link);
 //            content.setText(mValues.get(position).imageUrl);
 
-//            holder.mView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    if (mTwoPane) {
-//                        Bundle arguments = new Bundle();
-//                        arguments.putString(NewsArticleDetailFragment.ARG_ITEM_ID, holder.mItem.id);
-//                        NewsArticleDetailFragment fragment = new NewsArticleDetailFragment();
-//                        fragment.setArguments(arguments);
-//                        getSupportFragmentManager().beginTransaction()
-//                                .replace(R.id.newsarticle_detail_container, fragment)
-//                                .commit();
-//                    } else {
-//                        Context context = v.getContext();
-//                        Intent intent = new Intent(context, NewsArticleDetailActivity.class);
-//                        intent.putExtra(NewsArticleDetailFragment.ARG_ITEM_ID, holder.mItem.id);
-
-//                        context.startActivity(intent);
-//                    }
-//                }
-//            });
+            holder.mView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                        Bundle arguments = new Bundle();
+                        arguments.putParcelable(NewsArticleDetailFragment.NEWS_PARCEL_KEY, holder.newsItem);
+                        NewsArticleDetailFragment fragment = new NewsArticleDetailFragment();
+                        fragment.setArguments(arguments);
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.app_bar, fragment)
+                                .commit();
+                }
+            });
         }
 
         @Override
@@ -255,7 +261,7 @@ public class NewsArticleListActivity extends AppCompatActivity{
             return mValues.size();
         }
 
-        public void clear(){
+        public void clear() {
             int size = this.mValues.size();
             this.mValues.clear();
             notifyItemRangeRemoved(0, size);
@@ -263,12 +269,12 @@ public class NewsArticleListActivity extends AppCompatActivity{
 
         public class ViewHolder extends RecyclerView.ViewHolder {
             public View mView;
+            public NewsData newsItem;
 
             public ViewHolder(View view) {
                 super(view);
                 mView = view;
-//                mIdView = (TextView) view.findViewById(R.id.id);
-//                mContentView = (TextView) view.findViewById(R.id.content);
+
             }
 
 //            @Override
@@ -277,63 +283,8 @@ public class NewsArticleListActivity extends AppCompatActivity{
 //            }
         }
     }
-
-
-
-    protected static class RequestSingleton {
-        //the single instance of this singleton
-        private static RequestSingleton instance;
-
-        private RequestQueue requestQueue = null; //the singleton's RequestQueue
-        private ImageLoader imageLoader = null;
-
-        //private constructor; cannot instantiate directly
-        private RequestSingleton(Context ctx){
-            //create the requestQueue
-            this.requestQueue = Volley.newRequestQueue(ctx.getApplicationContext());
-
-            //create the imageLoader
-            imageLoader = new ImageLoader(requestQueue,
-                    new ImageLoader.ImageCache() {  //define an anonymous Cache object
-                        //the cache instance variable
-                        private final LruCache<String, Bitmap> cache = new LruCache<String, Bitmap>(20);
-
-                        //method for accessing the cache
-                        @Override
-                        public Bitmap getBitmap(String url) {
-                            return cache.get(url);
-                        }
-
-                        //method for storing to the cache
-                        @Override
-                        public void putBitmap(String url, Bitmap bitmap) {
-                            cache.put(url, bitmap);
-                        }
-                    });
-        }
-
-        //call this "factory" method to access the Singleton
-        public static RequestSingleton getInstance(Context ctx) {
-            //only create the singleton if it doesn't exist yet
-            if(instance == null){
-                instance = new RequestSingleton(ctx);
-            }
-
-            return instance; //return the singleton object
-        }
-
-        //get queue from singleton for direct action
-        public RequestQueue getRequestQueue() {
-            return this.requestQueue;
-        }
-
-        //convenience wrapper method
-        public <T> void add(Request<T> req) {
-            requestQueue.add(req);
-        }
-
-        public ImageLoader getImageLoader() {
-            return this.imageLoader;
-        }
-    }
 }
+
+
+
+

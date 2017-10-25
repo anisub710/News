@@ -6,12 +6,15 @@
     android:name="edu.uw.ask710.news.NewsArticleListFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
+    app:layoutManager="android.support.v7.widget.GridLayoutManager"
+    app:spanCount="2"
+    android:layout_margin="8dp"
     tools:context="edu.uw.ask710.news.NewsArticleListActivity"
     tools:listitem="@layout/newsarticle_list_content" />
+
     <!--app:layoutManager="GridLayoutManager"-->
     <!--android:numColumns="2"-->
-    <!--android:layout_marginLeft="16dp"-->
+
     <!--android:layout_marginRight="16dp"-->
 
 

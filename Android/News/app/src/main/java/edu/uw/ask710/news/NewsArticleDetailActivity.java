@@ -21,14 +21,13 @@ import static edu.uw.ask710.news.R.id.fab;
  * item details are presented side-by-side with a list of items
  * in a {@link NewsArticleListActivity}.
  */
-public class NewsArticleDetailActivity extends AppCompatActivity{
+public class NewsArticleDetailActivity extends AppCompatActivity
+        implements NewsArticleDetailFragment.HasCollapsableImage{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_newsarticle_detail);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
-        setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -69,6 +68,13 @@ public class NewsArticleDetailActivity extends AppCompatActivity{
         }
     }
 
+
+    @Override
+    public void setupToolbar() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
+        setSupportActionBar(toolbar);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -84,4 +90,5 @@ public class NewsArticleDetailActivity extends AppCompatActivity{
         }
         return super.onOptionsItemSelected(item);
     }
+
 }
