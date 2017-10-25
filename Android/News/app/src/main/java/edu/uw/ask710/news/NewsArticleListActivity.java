@@ -11,6 +11,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.util.LruCache;
@@ -71,7 +73,7 @@ import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class NewsArticleListActivity extends AppCompatActivity {
+public class NewsArticleListActivity extends AppCompatActivity implements NewsArticleDetailFragment.whichArticle{
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -95,6 +97,7 @@ public class NewsArticleListActivity extends AppCompatActivity {
 
         handleIntent(getIntent());
 
+
         fillData("");
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -113,6 +116,8 @@ public class NewsArticleListActivity extends AppCompatActivity {
             // If this view is present, then the
             // activity should be in two-pane mode.
             mTwoPane = true;
+            Fragment fr = new Fragment();
+            
         }
     }
 
@@ -217,6 +222,11 @@ public class NewsArticleListActivity extends AppCompatActivity {
         });
 
         RequestSingleton.getInstance(this).add(request);
+    }
+
+    @Override
+    public void whichArticle(NewsData news) {
+
     }
 
 
