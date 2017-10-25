@@ -22,9 +22,13 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import edu.uw.ask710.news.dummy.DummyContent;
 
@@ -39,14 +43,10 @@ public class NewsArticleDetailFragment extends Fragment {
      * The fragment argument representing the item ID that this fragment
      * represents.
      */
-    public static final String ARG_ITEM_ID = "item_id";
     public static final String TAG = "NewsArticleDetailFragment";
     public static final String NEWS_PARCEL_KEY = "news_parcel";
-    private HasCollapsableImage callback;
-    /**
-     * The dummy content this fragment is presenting.
-     */
-    private DummyContent.DummyItem mItem;
+    private HasCollapsableImage imageCallback;
+    private whichArticle articleCallback;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -56,7 +56,11 @@ public class NewsArticleDetailFragment extends Fragment {
     }
 
      interface HasCollapsableImage{
-         void setupToolbar();
+         void setupToolbar(String imageUrl);
+    }
+
+    interface whichArticle{
+        void whichArticle(NewsData news);
     }
 
     public static NewsArticleDetailFragment newInstance(NewsData news){
@@ -74,7 +78,47 @@ public class NewsArticleDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    public void getSources(String sourceId, final View rootView){
+        String api_key = getString(R.string.NEWS_API_KEY);
+        String urlString = "http://beta.newsapi.org/v2/everything?language=en&sources="
+                + sourceId + "&apiKey=" + api_key;
+//        Request request = new JsonObjectRequest(Request.Method.GET, urlString, null,
+//                new Response.Listener<JSONObject>() {
+//
+//                    @Override
+//                    public void onResponse(JSONObject response) {
+//
+//                        try {
+//                            JSONArray articles = response.getJSONArray("articles");
+//                            for (int i = 0; i < 5; i++) {
+//                                JSONObject article = articles.getJSONObject(i);
+//                                String headline = article.getString("title");
+//                            }
+//
+//                        } catch (JSONException e) {
+//                            Log.e(getContext(), "Error parsing json", e);
+//                        }
+//                    }
+//                }, new Response.ErrorListener() {
+//
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                Log.e(TAG, error.toString());
+//            }
+//        });
+//
+//        RequestSingleton.getInstance(this).add(request);
+    }
 
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try {
+            articleCallback= (whichArticle) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement whichArticle");
+        }
+    }
 
 
     @Override
@@ -82,13 +126,20 @@ public class NewsArticleDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.newsarticle_detail, container, false);
         if(getContext() instanceof HasCollapsableImage){
-            callback = (HasCollapsableImage) getContext();
+            imageCallback= (HasCollapsableImage) getContext();
         }
         Bundle args = getArguments();
         if(args != null){
             NewsData news = args.getParcelable(NEWS_PARCEL_KEY);
-            NetworkImageView big_image = (NetworkImageView) rootView.findViewById(R.id.big_image);
-            big_image.setImageUrl(news.imageUrl, RequestSingleton.getInstance(rootView.getContext()).getImageLoader());
+            imageCallback.setupToolbar(news.imageUrl);
+            TextView headline = (TextView) rootView.findViewById(R.id.headline);
+            TextView desc = (TextView) rootView.findViewById(R.id.description);
+            TextView source = (TextView)rootView.findViewById(R.id.source_heading);
+            headline.setText(news.headline);
+            desc.setText(news.description);
+            String sourceHeading = "More news from " + news.source_name;
+            source.setText(sourceHeading);
+            getSources(news.source_id, rootView);
         }
 
 

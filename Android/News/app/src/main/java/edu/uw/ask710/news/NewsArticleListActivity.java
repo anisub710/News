@@ -178,7 +178,9 @@ public class NewsArticleListActivity extends AppCompatActivity {
                             JSONArray articles = response.getJSONArray("articles");
                             for (int i = 0; i < articles.length(); i++) {
                                 JSONObject article = articles.getJSONObject(i);
-
+                                JSONObject source = article.getJSONObject("source");
+                                String source_id = source.getString("id");
+                                String source_name = source.getString("name");
                                 String headline = article.getString("title");
                                 String imageUrl = article.getString("urlToImage");
                                 String description = article.getString("description");
@@ -191,7 +193,8 @@ public class NewsArticleListActivity extends AppCompatActivity {
                                 } catch (ParseException e) {
                                     Log.e(TAG, "Error parsing date", e); //Android log the error
                                 }
-                                NewsData story = new NewsData(headline, imageUrl, description, publishedTime);
+                                NewsData story = new NewsData(headline, imageUrl, description,
+                                        publishedTime, source_id, source_name);
                                 stories.add(story);
 //                                Log.v(TAG, story.description);
                                 newsAdapter.notifyDataSetChanged();
@@ -245,13 +248,23 @@ public class NewsArticleListActivity extends AppCompatActivity {
             holder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (mTwoPane) {
                         Bundle arguments = new Bundle();
                         arguments.putParcelable(NewsArticleDetailFragment.NEWS_PARCEL_KEY, holder.newsItem);
                         NewsArticleDetailFragment fragment = new NewsArticleDetailFragment();
                         fragment.setArguments(arguments);
                         getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.newsarticle_detail_container, fragment)
+                                .addToBackStack(null)
                                 .commit();
+                    } else {
+
+                        Context context = v.getContext();
+                        Intent intent = new Intent(context, NewsArticleDetailActivity.class);
+                        intent.putExtra(NewsArticleDetailFragment.NEWS_PARCEL_KEY, holder.newsItem);
+
+                        context.startActivity(intent);
+                    }
                 }
             });
         }

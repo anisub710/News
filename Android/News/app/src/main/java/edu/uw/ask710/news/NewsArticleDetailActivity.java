@@ -13,6 +13,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
+import com.android.volley.toolbox.NetworkImageView;
+
 import static edu.uw.ask710.news.R.id.fab;
 
 /**
@@ -22,14 +24,14 @@ import static edu.uw.ask710.news.R.id.fab;
  * in a {@link NewsArticleListActivity}.
  */
 public class NewsArticleDetailActivity extends AppCompatActivity
-        implements NewsArticleDetailFragment.HasCollapsableImage{
+        implements NewsArticleDetailFragment.HasCollapsableImage, NewsArticleDetailFragment.whichArticle{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_newsarticle_detail);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.share);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -57,22 +59,31 @@ public class NewsArticleDetailActivity extends AppCompatActivity
         if (savedInstanceState == null) {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
-            Bundle arguments = new Bundle();
-            arguments.putString(NewsArticleDetailFragment.ARG_ITEM_ID,
-                    getIntent().getStringExtra(NewsArticleDetailFragment.ARG_ITEM_ID));
-            NewsArticleDetailFragment fragment = new NewsArticleDetailFragment();
-            fragment.setArguments(arguments);
+
+//            arguments.putParcelable(NewsArticleDetailFragment.NEWS_PARCEL_KEY, getPar );
+            NewsData news = getIntent().getExtras().getParcelable(NewsArticleDetailFragment.NEWS_PARCEL_KEY);
+//            String imageUrl = news.imageUrl;
+//            setupToolbar(imageUrl);
+            NewsArticleDetailFragment fragment = NewsArticleDetailFragment.newInstance(news);
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.newsarticle_detail_container, fragment)
+                    .replace(R.id.newsarticle_detail_container, fragment)
+                    .addToBackStack(null)
                     .commit();
         }
     }
 
 
     @Override
-    public void setupToolbar() {
+    public void setupToolbar(String imageUrl) {
         Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
+        NetworkImageView big_image = (NetworkImageView) findViewById(R.id.big_image);
+        big_image.setImageUrl(imageUrl, RequestSingleton.getInstance(NewsArticleDetailActivity.this).getImageLoader());
+    }
+
+    @Override
+    public void whichArticle(NewsData news) {
+
     }
 
     @Override
@@ -90,5 +101,6 @@ public class NewsArticleDetailActivity extends AppCompatActivity
         }
         return super.onOptionsItemSelected(item);
     }
+
 
 }
