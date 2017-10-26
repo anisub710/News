@@ -39,7 +39,7 @@
         android:layout_margin="@dimen/fab_margin"
         android:visibility="invisible"
         android:src="@drawable/ic_arrow_drop_up_black_30dp"
-        android:tint="#000"/>
+        android:tint="@color/iconColor"/>
 
 
 </android.support.design.widget.CoordinatorLayout>

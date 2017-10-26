@@ -36,6 +36,7 @@ import android.view.MenuItem;
 import android.view.SearchEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -102,7 +103,7 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
 
         fillData("");
 
-
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         if (findViewById(R.id.newsarticle_detail_container) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-w900dp).
@@ -110,16 +111,23 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
             // activity should be in two-pane mode.
             mTwoPane = true;
 
-            Fragment fr = new Fragment();
+            fab.setImageResource(R.drawable.ic_share);
+            View frameLayout = findViewById(R.id.frameLayout);
+            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) frameLayout.getLayoutParams();
+            params.setBehavior(null);
+            frameLayout.requestLayout();
+            fab.setVisibility(View.VISIBLE);
+
+
+            WelcomeFragment fr = new WelcomeFragment();
             Bundle args = new Bundle();
             args.putString(ARG_PARAM_KEY, "Welcome to this thing");
             fr.setArguments(args);
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.newsarticle_detail_container, fr)
+                    .add(R.id.reference_container, fr)
                     .commit();
 
         }else{
-            fab = (FloatingActionButton) findViewById(R.id.fab);
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -236,9 +244,41 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
         RequestSingleton.getInstance(this).add(request);
     }
 
-    @Override
-    public void whichArticle(NewsData news) {
 
+
+
+    @Override
+    public void whichArticle(final NewsData news, Context ctx) {
+        if (mTwoPane) {
+            Bundle arguments = new Bundle();
+            arguments.putParcelable(NewsArticleDetailFragment.NEWS_PARCEL_KEY, news);
+
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //SEND URL + HEADLINE
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, news.toString());
+                    sendIntent.setType("text/plain");
+                    startActivity(sendIntent);
+
+                }
+            });
+
+            NewsArticleDetailFragment fragment = new NewsArticleDetailFragment();
+            fragment.setArguments(arguments);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.reference_container, fragment)
+                    .addToBackStack(null)
+                    .commit();
+        } else {
+            Context context = ctx;
+                Intent intent = new Intent(context, NewsArticleDetailActivity.class);
+                intent.putExtra(NewsArticleDetailFragment.NEWS_PARCEL_KEY, news);
+
+                context.startActivity(intent);
+        }
     }
 
 
@@ -270,23 +310,8 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
             holder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mTwoPane) {
-                        Bundle arguments = new Bundle();
-                        arguments.putParcelable(NewsArticleDetailFragment.NEWS_PARCEL_KEY, holder.newsItem);
-                        NewsArticleDetailFragment fragment = new NewsArticleDetailFragment();
-                        fragment.setArguments(arguments);
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.reference_container, fragment)
-                                .addToBackStack(null)
-                                .commit();
-                    } else {
-
-                        Context context = v.getContext();
-                        Intent intent = new Intent(context, NewsArticleDetailActivity.class);
-                        intent.putExtra(NewsArticleDetailFragment.NEWS_PARCEL_KEY, holder.newsItem);
-
-                        context.startActivity(intent);
-                    }
+                    Log.v(TAG, "I'm here " + v.getContext().toString());
+                    whichArticle(holder.newsItem, v.getContext());
                 }
             });
         }

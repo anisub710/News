@@ -44,7 +44,8 @@ public class ShowOnScrollBehavior extends AppBarLayout.ScrollingViewBehavior{
                     ((FloatingActionButton) view).show();
                 }
             }
-        }else if(dyConsumed < 0){
+        }
+        else if(!target.canScrollVertically(-1)){
             List<View> dependencies = coordinatorLayout.getDependencies(child);
             for(View view : dependencies){
                 if(view instanceof FloatingActionButton){

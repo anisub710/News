@@ -1,6 +1,7 @@
 package edu.uw.ask710.news;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -48,32 +49,41 @@ public class NewsArticleDetailActivity extends AppCompatActivity
         // http://developer.android.com/guide/components/fragments.html
         //
         if (savedInstanceState == null) {
-            // Create the detail fragment and add it to the activity
-            // using a fragment transaction.
 
             news = getIntent().getExtras().getParcelable(NewsArticleDetailFragment.NEWS_PARCEL_KEY);
-//            String imageUrl = news.imageUrl;
-//            setupToolbar(imageUrl);
-            NewsArticleDetailFragment fragment = NewsArticleDetailFragment.newInstance(news);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.reference_container, fragment)
-                    .commit();
-            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.share);
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //SEND URL + HEADLINE
-                    Intent sendIntent = new Intent();
-                    sendIntent.setAction(Intent.ACTION_SEND);
-                    sendIntent.putExtra(Intent.EXTRA_TEXT, news.toString());
-                    sendIntent.setType("text/plain");
-                    startActivity(sendIntent);
+            buildFragment(news);
 
-                }
-            });
         }
     }
 
+    public void buildFragment(final NewsData news){
+//            String imageUrl = news.imageUrl;
+//            setupToolbar(imageUrl);
+        NewsArticleDetailFragment fragment = NewsArticleDetailFragment.newInstance(news);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.reference_container, fragment)
+                .commit();
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.share);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //SEND URL + HEADLINE
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT, news.toString());
+                sendIntent.setType("text/plain");
+                startActivity(sendIntent);
+
+            }
+        });
+    }
+
+
+    @Override
+    public void whichArticle(NewsData news, Context ctx) {
+        buildFragment(news);
+    }
 
     @Override
     public void setupToolbar(String imageUrl) {
@@ -83,10 +93,6 @@ public class NewsArticleDetailActivity extends AppCompatActivity
         big_image.setImageUrl(imageUrl, RequestSingleton.getInstance(NewsArticleDetailActivity.this).getImageLoader());
     }
 
-    @Override
-    public void whichArticle(NewsData news) {
-
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

@@ -14,7 +14,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="MyTextAppearance" parent="TextAppearance.AppCompat">
+    <style name="MyTextAppearance" parent="@android:style/TextAppearance">
         <item name="android:textColor">#000</item>
     </style>
 

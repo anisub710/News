@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -29,6 +30,7 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 import edu.uw.ask710.news.dummy.DummyContent;
 
@@ -49,6 +51,8 @@ public class NewsArticleDetailFragment extends Fragment {
     public static final String NEWS_PARCEL_KEY = "news_parcel";
     private HasCollapsableImage imageCallback;
     private whichArticle articleCallback;
+    private ArrayList<NewsData> stories;
+    private NewsData story;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -62,7 +66,7 @@ public class NewsArticleDetailFragment extends Fragment {
     }
 
     interface whichArticle{
-        void whichArticle(NewsData news);
+        void whichArticle(NewsData news, Context ctx);
     }
 
     public static NewsArticleDetailFragment newInstance(NewsData news){
@@ -77,11 +81,11 @@ public class NewsArticleDetailFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
     }
 
-    public void getSources(String sourceId, final ViewGroup v, final LayoutInflater inflater){
+
+    public void getSources(String sourceId, final ViewGroup container, final LayoutInflater inflater){
         String api_key = getString(R.string.NEWS_API_KEY);
         String urlString = "http://beta.newsapi.org/v2/everything?language=en&sources="
                 + sourceId + "&apiKey=" + api_key;
@@ -89,19 +93,39 @@ public class NewsArticleDetailFragment extends Fragment {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-
+                        stories = new ArrayList<NewsData>();
                         try {
                             JSONArray articles = response.getJSONArray("articles");
                             for (int i = 0; i < 5; i++) {
                                 TextView rootView = (TextView) inflater.inflate(R.layout.reference_links, null);
                                 JSONObject article = articles.getJSONObject(i);
+                                JSONObject source = article.getJSONObject("source");
+                                String source_id = source.getString("id");
+                                String source_name = source.getString("name");
                                 String headline = article.getString("title");
+                                String imageUrl = article.getString("urlToImage");
+                                String description = article.getString("description");
+                                String url = article.getString("url");
+                                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                                long publishedTime = 0;
+                                try {
+                                    String pubDateString = article.getString("publishedAt");
+                                    if (!pubDateString.equals("null"))
+                                        publishedTime = formatter.parse(pubDateString).getTime();
+                                } catch (ParseException e) {
+//                                    Log.e(TAG, "Error parsing date", e); //Android log the error
+                                }
+                                story = new NewsData(headline, imageUrl, description,
+                                        publishedTime, url, source_id, source_name);
+                                stories.add(story);
                                 rootView.setText(headline);
-                                if(v != null){
-                                    v.addView(rootView);
+                                setOnClick(rootView, story);
+                                if(container != null){
+                                    container.addView(rootView);
                                 }
 
                             }
+
 
 
                         } catch (JSONException e) {
@@ -117,6 +141,16 @@ public class NewsArticleDetailFragment extends Fragment {
         });
 
         RequestSingleton.getInstance(getContext()).add(request);
+    }
+
+    public void setOnClick(View rootView, final NewsData story){
+        rootView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              Context curr = getContext();
+                articleCallback.whichArticle(story, curr);
+            }
+        });
     }
 
     public void onAttach(Context context) {
@@ -139,22 +173,19 @@ public class NewsArticleDetailFragment extends Fragment {
         if(args != null){
             NewsData news = args.getParcelable(NEWS_PARCEL_KEY);
 
-            if(getContext() instanceof HasCollapsableImage){
-                imageCallback= (HasCollapsableImage) getContext();
+            if(getContext() instanceof HasCollapsableImage) {
+                imageCallback = (HasCollapsableImage) getContext();
                 imageCallback.setupToolbar(news.imageUrl);
-            }else{
-                String welcome = args.getString(NewsArticleListActivity.ARG_PARAM_KEY);
-//                rootView
             }
             container.removeAllViews();
             TextView headline = (TextView) rootView.findViewById(R.id.headline);
             TextView desc = (TextView) rootView.findViewById(R.id.description);
             TextView source = (TextView)rootView.findViewById(R.id.source_heading);
+            getSources(news.source_id, container, inflater);
             headline.setText(news.headline);
             desc.setText(news.description);
             String sourceHeading = "More news from " + news.source_name;
             source.setText(sourceHeading);
-            getSources(news.source_id, container, inflater);
         }
 
 
