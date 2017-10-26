@@ -29,11 +29,33 @@
         tools:context="edu.uw.ask710.news.NewsArticleListActivity"
         tools:listitem="@layout/newsarticle_list_content" />
 
-    <FrameLayout
+    <android.support.v4.widget.NestedScrollView
         android:id="@+id/newsarticle_detail_container"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="3"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" >
+
+        <LinearLayout
+            android:id="@+id/reference_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            >
+
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/share"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|start"
+        android:layout_margin="@dimen/fab_margin"
+        app:layout_anchor="@+id/newsarticle_detail_container"
+        app:layout_anchorGravity="top|end"
+        app:srcCompat="@drawable/ic_share"
+        android:tint="@color/iconColor"
         />
 
-    </LinearLayout>
+</LinearLayout>

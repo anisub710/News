@@ -26,20 +26,11 @@ import static edu.uw.ask710.news.R.id.fab;
 public class NewsArticleDetailActivity extends AppCompatActivity
         implements NewsArticleDetailFragment.HasCollapsableImage, NewsArticleDetailFragment.whichArticle{
 
+    private NewsData news;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_newsarticle_detail);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.share);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-
-            }
-        });
 
         // Show the Up button in the action bar.
         ActionBar actionBar = getSupportActionBar();
@@ -60,14 +51,26 @@ public class NewsArticleDetailActivity extends AppCompatActivity
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
 
-//            arguments.putParcelable(NewsArticleDetailFragment.NEWS_PARCEL_KEY, getPar );
-            NewsData news = getIntent().getExtras().getParcelable(NewsArticleDetailFragment.NEWS_PARCEL_KEY);
+            news = getIntent().getExtras().getParcelable(NewsArticleDetailFragment.NEWS_PARCEL_KEY);
 //            String imageUrl = news.imageUrl;
 //            setupToolbar(imageUrl);
             NewsArticleDetailFragment fragment = NewsArticleDetailFragment.newInstance(news);
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.newsarticle_detail_container, fragment)
+                    .replace(R.id.reference_container, fragment)
                     .commit();
+            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.share);
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //SEND URL + HEADLINE
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, news.toString());
+                    sendIntent.setType("text/plain");
+                    startActivity(sendIntent);
+
+                }
+            });
         }
     }
 

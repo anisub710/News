@@ -64,6 +64,7 @@ import static android.R.attr.apiKey;
 import static android.R.attr.author;
 import static android.R.attr.fragment;
 import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
+import static android.view.View.X;
 
 /**
  * An activity representing a list of NewsArticles. This activity
@@ -86,6 +87,7 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
     private FloatingActionButton fab;
     private RecyclerView list;
     private String searchQuery = "";
+    public static final String ARG_PARAM_KEY = "key";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -100,15 +102,6 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
 
         fillData("");
 
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                fab.hide();
-                list.smoothScrollToPosition(0);
-
-            }
-        });
 
         if (findViewById(R.id.newsarticle_detail_container) != null) {
             // The detail container view will be present only in the
@@ -116,8 +109,26 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
             // If this view is present, then the
             // activity should be in two-pane mode.
             mTwoPane = true;
+
             Fragment fr = new Fragment();
-            
+            Bundle args = new Bundle();
+            args.putString(ARG_PARAM_KEY, "Welcome to this thing");
+            fr.setArguments(args);
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.newsarticle_detail_container, fr)
+                    .commit();
+
+        }else{
+            fab = (FloatingActionButton) findViewById(R.id.fab);
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    fab.hide();
+                    list.smoothScrollToPosition(0);
+
+                }
+            });
+
         }
     }
 
@@ -189,6 +200,7 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
                                 String headline = article.getString("title");
                                 String imageUrl = article.getString("urlToImage");
                                 String description = article.getString("description");
+                                String url = article.getString("url");
                                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                                 long publishedTime = 0;
                                 try {
@@ -199,7 +211,7 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
                                     Log.e(TAG, "Error parsing date", e); //Android log the error
                                 }
                                 NewsData story = new NewsData(headline, imageUrl, description,
-                                        publishedTime, source_id, source_name);
+                                        publishedTime, url, source_id, source_name);
                                 stories.add(story);
 //                                Log.v(TAG, story.description);
                                 newsAdapter.notifyDataSetChanged();
@@ -264,7 +276,7 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
                         NewsArticleDetailFragment fragment = new NewsArticleDetailFragment();
                         fragment.setArguments(arguments);
                         getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.newsarticle_detail_container, fragment)
+                                .replace(R.id.reference_container, fragment)
                                 .addToBackStack(null)
                                 .commit();
                     } else {

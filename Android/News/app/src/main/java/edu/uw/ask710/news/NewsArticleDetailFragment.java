@@ -32,6 +32,8 @@ import java.text.SimpleDateFormat;
 
 import edu.uw.ask710.news.dummy.DummyContent;
 
+import static edu.uw.ask710.news.R.id.link;
+
 /**
  * A fragment representing a single NewsArticle detail screen.
  * This fragment is either contained in a {@link NewsArticleListActivity}
@@ -75,39 +77,46 @@ public class NewsArticleDetailFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
     }
 
-    public void getSources(String sourceId, final View rootView){
+    public void getSources(String sourceId, final ViewGroup v, final LayoutInflater inflater){
         String api_key = getString(R.string.NEWS_API_KEY);
         String urlString = "http://beta.newsapi.org/v2/everything?language=en&sources="
                 + sourceId + "&apiKey=" + api_key;
-//        Request request = new JsonObjectRequest(Request.Method.GET, urlString, null,
-//                new Response.Listener<JSONObject>() {
+        Request request = new JsonObjectRequest(Request.Method.GET, urlString, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        try {
+                            JSONArray articles = response.getJSONArray("articles");
+                            for (int i = 0; i < 5; i++) {
+                                TextView rootView = (TextView) inflater.inflate(R.layout.reference_links, null);
+                                JSONObject article = articles.getJSONObject(i);
+                                String headline = article.getString("title");
+                                rootView.setText(headline);
+                                if(v != null){
+                                    v.addView(rootView);
+                                }
+
+                            }
+
+
+                        } catch (JSONException e) {
+//                            Log.e(, "Error parsing json", e);
+                        }
+                    }
+                }, new Response.ErrorListener() {
 //
-//                    @Override
-//                    public void onResponse(JSONObject response) {
-//
-//                        try {
-//                            JSONArray articles = response.getJSONArray("articles");
-//                            for (int i = 0; i < 5; i++) {
-//                                JSONObject article = articles.getJSONObject(i);
-//                                String headline = article.getString("title");
-//                            }
-//
-//                        } catch (JSONException e) {
-//                            Log.e(getContext(), "Error parsing json", e);
-//                        }
-//                    }
-//                }, new Response.ErrorListener() {
-//
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
+            @Override
+            public void onErrorResponse(VolleyError error) {
 //                Log.e(TAG, error.toString());
-//            }
-//        });
-//
-//        RequestSingleton.getInstance(this).add(request);
+            }
+        });
+
+        RequestSingleton.getInstance(getContext()).add(request);
     }
 
     public void onAttach(Context context) {
@@ -133,8 +142,11 @@ public class NewsArticleDetailFragment extends Fragment {
             if(getContext() instanceof HasCollapsableImage){
                 imageCallback= (HasCollapsableImage) getContext();
                 imageCallback.setupToolbar(news.imageUrl);
+            }else{
+                String welcome = args.getString(NewsArticleListActivity.ARG_PARAM_KEY);
+//                rootView
             }
-
+            container.removeAllViews();
             TextView headline = (TextView) rootView.findViewById(R.id.headline);
             TextView desc = (TextView) rootView.findViewById(R.id.description);
             TextView source = (TextView)rootView.findViewById(R.id.source_heading);
@@ -142,7 +154,7 @@ public class NewsArticleDetailFragment extends Fragment {
             desc.setText(news.description);
             String sourceHeading = "More news from " + news.source_name;
             source.setText(sourceHeading);
-            getSources(news.source_id, rootView);
+            getSources(news.source_id, container, inflater);
         }
 
 
