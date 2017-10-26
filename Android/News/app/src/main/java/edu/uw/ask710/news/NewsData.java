@@ -7,7 +7,7 @@ import android.os.Parcelable;
  * Created by anirudhsubramanyam on 10/23/17.
  */
 
-
+//Custom class to hold details about news from newsapi and is parcelable.
 public class NewsData implements Parcelable {
     public String headline = "";
     public String description = "";
@@ -17,6 +17,7 @@ public class NewsData implements Parcelable {
     public String source_id = "";
     public String source_name = "";
 
+    //empty constructor
     public NewsData() {
 
     }

@@ -61,14 +61,17 @@ public class NewsArticleDetailFragment extends Fragment {
     public NewsArticleDetailFragment() {
     }
 
+    //setup interface to determine whether the activity has a collapsing toolbar or not.
      interface HasCollapsableImage{
          void setupToolbar(String imageUrl);
     }
 
+    //setup interface to determine which activity to fill data in.
     interface whichArticle{
         void whichArticle(NewsData news, Context ctx);
     }
 
+    //gets bundle and builds a new fragment for Detail Activity.
     public static NewsArticleDetailFragment newInstance(NewsData news){
         Bundle args = new Bundle();
         args.putParcelable(NEWS_PARCEL_KEY, news);
@@ -84,7 +87,9 @@ public class NewsArticleDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
-
+    //takes sourceID, container and inflater to get the reference links similar to the source of the
+    //main article being displayed and making each of the reference links clickable and display on
+    //activity based on orientation.
     public void getSources(String sourceId, final ViewGroup container, final LayoutInflater inflater){
         String api_key = getString(R.string.NEWS_API_KEY);
         String urlString = "http://beta.newsapi.org/v2/everything?language=en&sources="
@@ -143,6 +148,7 @@ public class NewsArticleDetailFragment extends Fragment {
         RequestSingleton.getInstance(getContext()).add(request);
     }
 
+    //sets on click for a single reference link
     public void setOnClick(View rootView, final NewsData story){
         rootView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -153,6 +159,7 @@ public class NewsArticleDetailFragment extends Fragment {
         });
     }
 
+    //checks if whichArticle interface is implemented.
     public void onAttach(Context context) {
         super.onAttach(context);
 
@@ -164,6 +171,7 @@ public class NewsArticleDetailFragment extends Fragment {
     }
 
 
+    //sets up detail activity with details about the article and reference links.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

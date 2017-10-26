@@ -12,6 +12,7 @@ import android.widget.TextView;
  * Created by Anirudh Subramanyam on 10/26/2017.
  */
 
+//custom fragment to display welcome message.
 public class WelcomeFragment extends Fragment {
 
     public WelcomeFragment(){

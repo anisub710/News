@@ -88,7 +88,7 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
     private FloatingActionButton fab;
     private RecyclerView list;
     private String searchQuery = "";
-    public static final String ARG_PARAM_KEY = "key";
+    public static final String ARG_PARAM_KEY = "key"; //key for welcome message.
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -100,26 +100,30 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
 
         handleIntent(getIntent());
 
-
         fillData("");
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
+
+        //checks if it is in widescreen mode.
         if (findViewById(R.id.newsarticle_detail_container) != null) {
-            // The detail container view will be present only in the
-            // large-screen layouts (res/values-w900dp).
-            // If this view is present, then the
-            // activity should be in two-pane mode.
             mTwoPane = true;
 
+            //sets the share button
             fab.setImageResource(R.drawable.ic_share);
             View frameLayout = findViewById(R.id.frameLayout);
+
+            //removes ShowOnScrollBehavior from the button and makes it visible.
             CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) frameLayout.getLayoutParams();
             params.setBehavior(null);
             params.setBehavior(new AppBarLayout.ScrollingViewBehavior());
             frameLayout.requestLayout();
             fab.setVisibility(View.VISIBLE);
 
-
+            //Fragment for welcome message when the activity is empty.
+            ViewGroup container = (ViewGroup)findViewById(R.id.reference_container);
+            if(container != null){
+                container.removeAllViews();
+            }
             WelcomeFragment fr = new WelcomeFragment();
             Bundle args = new Bundle();
             args.putString(ARG_PARAM_KEY, "Welcome to this thing");
@@ -129,6 +133,8 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
                     .commit();
 
         }else{
+
+            //Sets scroll up button for narrow mode.
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -141,7 +147,7 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
         }
     }
 
-    //SEARCH
+    //sets up search widget.
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -161,12 +167,15 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
         return true;
     }
 
+    //use handleIntent helper method.
     @Override
     protected void onNewIntent(Intent intent) {
         setIntent(intent);
         handleIntent(intent);
     }
 
+    //gets the intent for the search and uses the getSearchData helper method passing the query
+    // from the intent
     protected void handleIntent(Intent intent) {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
@@ -174,11 +183,13 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
         }
     }
 
+    //fills data based on search query.
     protected void getSearchData(String query) {
         searchQuery = query;
         fillData(searchQuery);
     }
 
+    //uses helper method downloadNewsData to setup the list of articles
     protected void fillData(String query) {
         stories = new ArrayList<NewsData>();
         downloadNewsData(query);
@@ -188,7 +199,8 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
 
     }
 
-
+    //Takes a query and downloads data from newsapi parses it and adds to the requestQueue in
+    //requestsingleton
     public void downloadNewsData(String query) {
         String api_key = getString(R.string.NEWS_API_KEY);
         String urlString = "http://beta.newsapi.org/v2/top-headlines?country=us&language=en&q="
@@ -247,7 +259,8 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
 
 
 
-
+    //override method from whichArticle interface to set display data depending on widescreen
+    //or narrow screen layout. Takes in newsdata and context.
     @Override
     public void whichArticle(final NewsData news, Context ctx) {
         if (mTwoPane) {
@@ -282,7 +295,7 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
         }
     }
 
-
+    //Custom RecyclerView Adapter.
     public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
 
         private final ArrayList<NewsData> mValues;
@@ -298,6 +311,7 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
             return new ViewHolder(view);
         }
 
+        //sets up cards and sets onclicklisteners on each card.
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
             holder.newsItem = mValues.get(position);
@@ -338,10 +352,6 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
 
             }
 
-//            @Override
-//            public String toString() {
-//                return super.toString() + " '" + mContentView.getText() + "'";
-//            }
         }
     }
 }

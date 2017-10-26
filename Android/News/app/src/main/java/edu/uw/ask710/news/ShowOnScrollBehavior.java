@@ -14,6 +14,8 @@ import java.util.List;
  * Created by anirudhsubramanyam on 10/21/17.
  */
 
+
+//To add scroll up behavior for the button in the list view of articles.
 public class ShowOnScrollBehavior extends AppBarLayout.ScrollingViewBehavior{
 
     public ShowOnScrollBehavior(Context context, AttributeSet attrs){

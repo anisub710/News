@@ -41,13 +41,7 @@ public class NewsArticleDetailActivity extends AppCompatActivity
 
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity
-        // (e.g. when rotating the screen from portrait to landscape).
-        // In this case, the fragment will automatically be re-added
-        // to its container so we don't need to manually add it.
-        // For more information, see the Fragments API guide at:
-        //
-        // http://developer.android.com/guide/components/fragments.html
-        //
+
         if (savedInstanceState == null) {
 
             news = getIntent().getExtras().getParcelable(NewsArticleDetailFragment.NEWS_PARCEL_KEY);
@@ -56,9 +50,10 @@ public class NewsArticleDetailActivity extends AppCompatActivity
         }
     }
 
+    //builds fragment and replaces the fragment manager to the reference container in the detail
+    //activity. Also sets the share FAB.
     public void buildFragment(final NewsData news){
-//            String imageUrl = news.imageUrl;
-//            setupToolbar(imageUrl);
+
         NewsArticleDetailFragment fragment = NewsArticleDetailFragment.newInstance(news);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.reference_container, fragment)
@@ -80,17 +75,22 @@ public class NewsArticleDetailActivity extends AppCompatActivity
     }
 
 
+    //method implemented for whichArticle interface.
+    //builds the fragment for Detail Activity and setup image in collapsing toolbar.
     @Override
     public void whichArticle(NewsData news, Context ctx) {
         buildFragment(news);
+        setupToolbar(news.imageUrl);
     }
 
+    //Takes imageurl from news and sets the network image in the collapsing toolbar.
     @Override
     public void setupToolbar(String imageUrl) {
         Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
         NetworkImageView big_image = (NetworkImageView) findViewById(R.id.big_image);
         big_image.setImageUrl(imageUrl, RequestSingleton.getInstance(NewsArticleDetailActivity.this).getImageLoader());
+        big_image.setErrorImageResId(R.drawable.broken_link);
     }
 
 
@@ -99,11 +99,7 @@ public class NewsArticleDetailActivity extends AppCompatActivity
         int id = item.getItemId();
         if (id == android.R.id.home) {
             // This ID represents the Home or Up button. In the case of this
-            // activity, the Up button is shown. For
-            // more details, see the Navigation pattern on Android Design:
-            //
-            // http://developer.android.com/design/patterns/navigation.html#up-vs-back
-            //
+            // activity, the Up button is shown.
             navigateUpTo(new Intent(this, NewsArticleListActivity.class));
             return true;
         }
