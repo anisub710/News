@@ -177,7 +177,9 @@ public class NewsArticleDetailFragment extends Fragment {
                 imageCallback = (HasCollapsableImage) getContext();
                 imageCallback.setupToolbar(news.imageUrl);
             }
-            container.removeAllViews();
+            if(container != null){
+                container.removeAllViews();
+            }
             TextView headline = (TextView) rootView.findViewById(R.id.headline);
             TextView desc = (TextView) rootView.findViewById(R.id.description);
             TextView source = (TextView)rootView.findViewById(R.id.source_heading);

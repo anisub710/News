@@ -115,6 +115,7 @@ public class NewsArticleListActivity extends AppCompatActivity implements NewsAr
             View frameLayout = findViewById(R.id.frameLayout);
             CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) frameLayout.getLayoutParams();
             params.setBehavior(null);
+            params.setBehavior(new AppBarLayout.ScrollingViewBehavior());
             frameLayout.requestLayout();
             fab.setVisibility(View.VISIBLE);
 
