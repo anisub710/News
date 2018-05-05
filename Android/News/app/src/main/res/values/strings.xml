@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Material News</string>
+    <string name="title_newsarticle_detail">NewsArticle Detail</string>
+    <string name="hint">Search For A Specific Topic</string>
+</resources>

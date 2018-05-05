@@ -1,0 +1,61 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:baselineAligned="false"
+    android:divider="?android:attr/dividerHorizontal"
+    android:orientation="horizontal"
+    android:showDividers="middle"
+    tools:context="edu.uw.ask710.news.NewsArticleListActivity">
+
+    <!--
+    This layout is a two-pane layout for the NewsArticles
+    master/detail flow.
+    
+    -->
+
+    <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/newsarticle_list"
+        android:name="edu.uw.ask710.news.NewsArticleListFragment"
+        android:layout_width="@dimen/item_width"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        app:layoutManager="LinearLayoutManager"
+        tools:context="edu.uw.ask710.news.NewsArticleListActivity"
+        tools:listitem="@layout/newsarticle_list_content" />
+
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/newsarticle_detail_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" >
+
+        <LinearLayout
+            android:id="@+id/reference_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            >
+
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/share"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|start"
+        android:layout_margin="@dimen/fab_margin"
+        app:layout_anchor="@+id/newsarticle_detail_container"
+        app:layout_anchorGravity="top|end"
+        app:srcCompat="@drawable/ic_share"
+        android:tint="@color/iconColor"
+        />
+
+</LinearLayout>

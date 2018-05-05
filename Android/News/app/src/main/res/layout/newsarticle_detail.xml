@@ -1,0 +1,32 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/newsarticle_detail"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="edu.uw.ask710.news.NewsArticleDetailFragment">
+    <TextView
+        android:id="@+id/headline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:layout_marginTop="20dp"
+        android:textAppearance="@android:style/TextAppearance.Material.Headline"
+
+         />
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:textAppearance="@android:style/TextAppearance.Material.Body1"
+        />
+    <TextView
+        android:id="@+id/source_heading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:textAppearance="@android:style/TextAppearance.Material.Title"
+        />
+
+</LinearLayout>
